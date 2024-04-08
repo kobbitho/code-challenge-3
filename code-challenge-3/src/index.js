@@ -1,5 +1,5 @@
 // Your code here
-let url = "http://localhost:3000/films/";
+let baseURL = "http://localhost:3000/films/";
 let ulFilms = document.getElementById("films");
 let idBuyticket = document.getElementById("buy-ticket")
 
@@ -11,12 +11,13 @@ let idShowtime = document.getElementById("showtime")
 let idTicketnum = document.getElementById("ticket-num")
 
 
-function grabMovie(){
-    fetch(url)
-    .then(response => response.json())
+function grabMovie(){  
+    // fetches data from  db.json and display it in the user interface
+    fetch(baseURL)
+    .then(response => response.json())// converts the response to json
     .then(data => { 
         ulFilms.innerHTML = "";
-        for(values of data){
+        for(values of data){  // loops through the response to create an unordered list of film titles
              addMovie(values);
         }
         }
@@ -24,16 +25,18 @@ function grabMovie(){
     .catch(error => console.log(error.message));
 }
 grabMovie();
-function addMovie(movies){
+function addMovie(movies){ 
+    //this function creates and appends a new list item to the unordered list element in the HTML document.
     
-    let remaining = movies.capacity - movies.tickets_sold;
+    let remaining = movies.capacity - movies.tickets_sold;// calculates available tickets
 
     movieTitle = movies.title
     movieId = movies.id
+
     let liFilm = document.createElement("li");
 
     if(!remaining > 0)
-    {  liFilm.className = "sold-out"
+    {  liFilm.className = "sold-out"  //if the number of tickets remaining is <= 0 "sold-out" is added to the list item to show that the tickets are not available.
     }
 
     ulFilms.appendChild(liFilm);
@@ -53,20 +56,21 @@ function addMovie(movies){
         updateDom(movies);
     })
     if(movies.id === "1"){
-        updateDom(movies);
+        updateDom(movies); // updates movie details in the user interface according to movie ID
     }
 }
 
 function updateDom(movies){
+    // updates movie details in the user interface according to movie ID
     let remaining = movies.capacity - movies.tickets_sold;
-    let movieId = movies.id;
-    let availabiity;
+    let movieId = movies.id; 
+    let availability;
 
     if(remaining > 0){
-        availabiity = "Buy Tickt"
+        availability = "Buy Ticket"
     }else{
-        availabiity = "Sold out"
-    }
+        availability = "Sold out"
+    }// checks ticket availability
 
     movieImg.src = movies.poster; 
     movieImg.alt = movies.title; 
@@ -82,66 +86,67 @@ function updateDom(movies){
              buyTicket(movies)
         }else{
             console.log("You cannot buy tickets")
-        }
+        }//sets an event listener for the "Buy Ticket" button.on click,it calls the bytTicket(movies) function
     };
     idBuyticket.dataset.movieId = movies.id;
-    let button = document.querySelector([data-movies-id = "${movieId}"]);
-    button.innerText = availabiity;
+    let button = document.querySelector(`[data-movies-id="${movieId}"]`);
+    button.innerText = availability;
 }
 function buyTicket(movies){
-    movies.tickets_sold++
-    let ticketsSold = movies.tickets_sold;
+    movies.tickets_sold++ // Increments the number of tickets sold by 1
+    let ticketsSold = movies.tickets_sold;// Stores the updated number of tickets sold
     let requestHeaders = {
         "Content-Type": "application/json"
-    }
+    };// Request headers for the PATCH request
     let requestBody = {
-        "tickets_sold": ticketsSold
+        "tickets_sold": ticketsSold  // Request body containing the updated number of tickets sold
     }
-    fetch(url+movies.id,{
+    fetch(baseURL + movies.id,{ //Sends a PATCH request to update the movie's details in the database
         method: "PATCH",
         headers: requestHeaders,    
         body: JSON.stringify(requestBody)
     })
-    .then (response => response.json())
-    .then (data => {
+    .then (response => response.json()) // Converts the response to JSON format
+    .then(data => {
         updateDom(data);
+        //after receiving a successful response, it parses the response into JSON format and updates the movie details in the user interface using the updateDom(data) function.
 
         let numberOfTickets = (data.capacity - data.tickets_sold)
 
         if(!numberOfTickets > 0)
-        { grabMovie()
+        { grabMovie();    // If there are no more tickets available, fetches the updated list of movies
         }
 
         let  RequestBodyTickets =  {
             "film_id": data.id,
-            "number_of_tickets": numberOfTickets
+            "number_of_tickets": numberOfTickets // Creates a new ticket object with the movie id and the remaining number of tickets
          }
 
-        fetch("http://localhost:3000/tickets",{
+        fetch("http://localhost:3000/tickets",{  // Sends a POST request to create a new ticket
             method: "POST",
             headers: requestHeaders,    
             body: JSON.stringify(RequestBodyTickets)
         })
-        .then (res => res.json())
-        .then(data => data)
-        .catch (e => console.log(e.message));
+        .then (response => response.json())
+        .then(data => data)  //Returns the newly created ticket
+        .catch (error => console.log(error.message));
 
     })
     .catch (error => console.log(error.message));
-}
+};
 function deleteMovie(movie){
     let requestHeaders = {
         "Content-Type": "application/json"
-    }
-    let requestBody = {
+    }//this function deletes a movie form the database and updates the user interface accordingly.
+    const requestBody = {
         "id": movie.id
-    }
-    fetch(url+movie.id, {
+    };
+    fetch(baseURL + movie.id, {
         method: "DELETE",
         headers: requestHeaders,    
         body: JSON.stringify(requestBody)
     })
-    .then (res => res.json())
-    .then (data => grabMovie())
-    .catch (e => console.log(e.message));
+    .then(response => response.json())
+    .then(data => grabMovie())
+    .catch(error => console.log(error.message));
 }
