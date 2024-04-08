@@ -4,11 +4,11 @@ let ulFilms = document.getElementById("films");
 let idBuyticket = document.getElementById("buy-ticket")
 
 let movieImg = document.getElementById("poster");
-let idTitle = document.getElementById("title")
-let idRuntime = document.getElementById("runtime")
-let idFilmInfo = document.getElementById("film-info")
-let idShowtime = document.getElementById("showtime")
-let idTicketnum = document.getElementById("ticket-num")
+let titleId = document.getElementById("title")
+let runtimeId = document.getElementById("runtime")
+let filminfoId = document.getElementById("film-info")
+let showtimeId = document.getElementById("showtime")
+let ticketnumId = document.getElementById("ticket-num")
 
 
 function grabMovie(){  
@@ -74,11 +74,11 @@ function updateDom(movies){
 
     movieImg.src = movies.poster; 
     movieImg.alt = movies.title; 
-    idTitle.innerText = movies.title;
-    idRuntime.innerText = movies.runtime + " minutes";
-    idFilmInfo.innerText = movies.description;
-    idShowtime.innerText = movies.showtime;
-    idTicketnum.innerText = remaining;
+    titleId.innerText = movies.title;
+    runtimeId.innerText = movies.runtime + " minutes";
+    filminfoId.innerText = movies.description;
+    showtimeId.innerText = movies.showtime;
+    ticketnumId.innerText = remaining;
 
     idBuyticket.onclick = () => {
         if(remaining > 0)
